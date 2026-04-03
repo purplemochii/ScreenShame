@@ -1,0 +1,4 @@
+<resources>
+    <style name="Theme.ScreenShame" parent="Theme.AppCompat.Light.NoActionBar">
+    </style>
+</resources>
