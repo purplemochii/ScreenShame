@@ -54,7 +54,7 @@ fun AppNavigation() {
         composable ( Screen.Permission.route ) {
             PermissionScreen ( onPermissionGranted = {
                 navController.navigate(Screen.Login.route ) {
-                    popUpTo ( Screen.Permission.route ) { inclusive = true }
+                    popUpTo ( Screen.Login.route ) { inclusive = true }
                 }
             })
         }
