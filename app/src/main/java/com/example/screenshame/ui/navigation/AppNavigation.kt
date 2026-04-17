@@ -4,10 +4,12 @@ import android.app.AppOpsManager
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.screenshame.ui.screens.*
+import com.example.screenshame.ui.viewmodel.ScreenShameViewModel
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
@@ -47,6 +49,8 @@ fun AppNavigation() {
         Screen.Login.route else
         Screen.Permission.route
 
+    val vm: ScreenShameViewModel = viewModel()
+
     NavHost(
         navController = navController,
         startDestination = start
@@ -67,13 +71,13 @@ fun AppNavigation() {
             })
         }
         composable(Screen.Dashboard.route) {
-            DashboardScreen(navController = navController)
+            DashboardScreen(navController = navController, vm = vm)
         }
         composable(Screen.Limits.route) {
-            LimitsScreen(navController = navController)
+            LimitsScreen(navController = navController, vm = vm)
         }
         composable(Screen.History.route) {
-            HistoryScreen(navController = navController)
+            HistoryScreen(navController = navController, vm = vm)
         }
     }
 }

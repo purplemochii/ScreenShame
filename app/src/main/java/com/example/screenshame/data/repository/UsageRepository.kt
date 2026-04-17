@@ -117,7 +117,13 @@ class UsageRepository ( private val context: Context ) {
         val packageManager = context.packageManager
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN, null)
         intent.addCategory(android.content.Intent.CATEGORY_LAUNCHER)
-        return packageManager.queryIntentServices(intent, 0)
+        //val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            //android.content.pm.PackageManager.MATCH_ALL
+        //} else {
+           // 0
+        //}
+        //return packageManager.queryIntentServices(intent, 0)
+        return packageManager.queryIntentActivities( intent, 0 )
             .mapNotNull { info ->
                 val packageName = info.activityInfo.packageName
                 val appName = info.loadLabel( packageManager ).toString()
