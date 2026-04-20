@@ -127,7 +127,7 @@ class UsageRepository ( private val context: Context ) {
             .mapNotNull { info ->
                 val packageName = info.activityInfo.packageName
                 val appName = info.loadLabel( packageManager ).toString()
-                if ( packageName == context.packageName ) null
+                if ( packageName == context.packageName ) null      // filter screenshame out of list
                 else Pair ( packageName, appName )
             }
             .sortedBy { it.second }

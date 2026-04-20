@@ -11,9 +11,12 @@ data class AppLimit (
 )
 
 // table for storing daily usage snapshots
-@Entity (tableName = "usage_snapshots")
+@Entity (
+    tableName = "usage_snapshots",
+    primaryKeys = ["packageName", "date"]
+)
 data class UsageSnapshot (
-    @PrimaryKey (autoGenerate = true) val id: Int = 0,
+    //@PrimaryKey (autoGenerate = true) val id: Int = 0,
     val packageName: String,
     val appName : String,
     val date : String, // dd - mm - yyyy
@@ -49,7 +52,7 @@ interface UsageSnapshotDao {
     suspend fun upsert ( snapshot: UsageSnapshot )
 }
 
-@Database ( entities = [AppLimit::class, UsageSnapshot::class], version = 1 )
+@Database ( entities = [AppLimit::class, UsageSnapshot::class], version = 2 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun appLimitDao() : AppLimitDao
     abstract fun usageSnapshotDao() : UsageSnapshotDao
@@ -63,7 +66,22 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "screenshame_db"
-                ).build().also { instance = it }
+                )   .addMigrations( object : androidx.room.migration.Migration(1, 2) {
+                        override fun migrate ( database: androidx.sqlite.db.SupportSQLiteDatabase ) {
+                            database.execSQL( "DROP TABLE IF EXISTS usage_snapshots" )
+                            database.execSQL( """
+                                CREATE TABLE IF NOT EXISTS usage_snapshots (
+                                    packageName TEXT NOT NULL,
+                                    appName TEXT NOT NULL,
+                                    date TEXT NOT NULL,
+                                    usageMinutes INTEGER NOT NULL,
+                                    PRIMARY KEY (packageName, date)
+                                )
+                                """.trimIndent()
+                            )
+                        }
+                    })
+                    .build().also { instance = it }
             }
         }
     }
