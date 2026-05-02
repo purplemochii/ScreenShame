@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.screenshame.ui.screens.*
 import com.example.screenshame.ui.viewmodel.ScreenShameViewModel
+import com.example.screenshame.util.AuthManager
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
@@ -42,13 +43,15 @@ fun hasUsagePermission ( context: Context ) : Boolean {
 fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val authManager = AuthManager(context)
 
     // decide the starting destination based on permissions
     //val start = Screen.Permission.route
-    val start = if ( hasUsagePermission( context ) )
-        Screen.Login.route else
-        Screen.Permission.route
-
+    val start = when {
+        !hasUsagePermission(context) -> Screen.Permission.route
+        !authManager.isLoggedIn() -> Screen.Login.route
+        else -> Screen.Dashboard.route
+    }
     val vm: ScreenShameViewModel = viewModel()
 
     NavHost(
@@ -58,17 +61,20 @@ fun AppNavigation() {
         composable ( Screen.Permission.route ) {
             PermissionScreen ( onPermissionGranted = {
                 navController.navigate(Screen.Login.route ) {
-                    popUpTo ( Screen.Login.route ) { inclusive = true }
+                    popUpTo ( Screen.Permission.route ) { inclusive = true }
                 }
             })
         }
 
         composable(Screen.Login.route) {
-            LoginScreen(onLoginSuccess = {
-                navController.navigate(Screen.Dashboard.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
+            LoginScreen(
+                authManager = authManager,
+                onLoginSuccess = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
                 }
-            })
+            )
         }
         composable(Screen.Dashboard.route) {
             DashboardScreen(navController = navController, vm = vm)

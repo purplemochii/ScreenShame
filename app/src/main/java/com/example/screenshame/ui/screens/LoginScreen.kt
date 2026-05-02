@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -16,29 +15,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.screenshame.ui.theme.*
+import com.example.screenshame.util.AuthManager
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
+fun LoginScreen(onLoginSuccess: () -> Unit, authManager: AuthManager) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
+    var authError by remember { mutableStateOf("") }
 
     fun validate(): Boolean {
         var valid = true
         if (!email.contains("@") || !email.contains(".")) {
-            emailError = "valid email ..?"
+            emailError = "enter a valid email"
             valid = false
-        } //else emailError = ""
-        if (password.length < 8) {
-            passwordError = "min 8 characters for your password cmon"
+        } else emailError = ""
+        if (password.length < 6) {
+            passwordError = "password must be at least 6 characters"
             valid = false
-        } //else passwordError = ""
+        } else passwordError = ""
         return valid
     }
 
@@ -138,9 +138,26 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // text for auth error
+        if (authError.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(authError, color = red,
+                style = MaterialTheme.typography.labelSmall)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         // login button
         Button (
-            onClick = { if (validate()) onLoginSuccess() },
+            onClick = {
+                if (validate()) {
+                    val success = authManager.validateCredentials(email, password)
+                    if (success) {
+                        onLoginSuccess()
+                    } else {
+                        authError = "incorrect email or password"
+                    }
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
@@ -151,7 +168,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             )
         ) {
             Text(
-                text = "unlock dashboard",
+                text = "Unlock Dashboard",
                 fontSize = 15.sp
             )
         }
