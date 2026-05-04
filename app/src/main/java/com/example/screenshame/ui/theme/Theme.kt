@@ -29,7 +29,7 @@ private val colorScheme = lightColorScheme(
     outline = border,
 )
 
-// inter as default sans-serif (system default is fine, we'll use default for body)
+// inter as default sans-serif (system default is fine, so use default for body)
 val interFamily = FontFamily.Default
 
 // typography

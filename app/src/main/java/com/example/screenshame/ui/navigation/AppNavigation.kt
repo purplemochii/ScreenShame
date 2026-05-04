@@ -46,7 +46,6 @@ fun AppNavigation() {
     val authManager = AuthManager(context)
 
     // decide the starting destination based on permissions
-    //val start = Screen.Permission.route
     val start = when {
         !hasUsagePermission(context) -> Screen.Permission.route
         !authManager.isLoggedIn() -> Screen.Login.route
